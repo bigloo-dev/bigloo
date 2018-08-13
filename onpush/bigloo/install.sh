@@ -4,7 +4,7 @@
 #*    -------------------------------------------------------------    */
 #*    Author      :  Manuel Serrano                                    */
 #*    Creation    :  Mon Aug 13 16:09:31 2018                          */
-#*    Last change :  Mon Aug 13 16:45:31 2018 (serrano)                */
+#*    Last change :  Mon Aug 13 16:51:42 2018 (serrano)                */
 #*    Copyright   :  2018 Manuel Serrano                               */
 #*    -------------------------------------------------------------    */
 #*    Bigloo install file                                              */
@@ -18,13 +18,15 @@ if [ ! -d $ONPUSH_DIR/opt/bigloo ]; then
   mkdir -p $ONPUSH_DIR/bootstrap/bigloo/dowload
   
   # download a install a first Bigloo version used to bootstrap the github repo
-  wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.3b-last.tar.gz -O $ONPUSH_DIR/bootstrap/bigloo4.3b-last.tar.gz
+  if [ -f $ONPUSH_DIR/bootstrap/bigloo4.3b-last.tar.gz ]; then
+    wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.3b-last.tar.gz -O $ONPUSH_DIR/bootstrap/bigloo4.3b-last.tar.gz
+  fi
 
   # install that version
-  (cd $ONPUSH_DIR/bootstrap/bigloo4.3b-last.tar.gz; \
+  (cd $ONPUSH_DIR/bootstrap; \
    tar xvfz bigloo4.3b-last.tar.gz; \
    cd bigloo4.3b; \
-   ./configure --prefix=$ONPUSH_DIR/bootstrap --disable-avahi --disable-alsa --disable-gstreamer --disable-pulseaudio --disable-mpg123 --disable-flag --disable-multimedia --disable-wav --jvm=no; \
+   ./configure --prefix=$ONPUSH_DIR/bootstrap --disable-avahi --disable-alsa --disable-gstreamer --disable-pulseaudio --disable-mpg123 --disable-flac --disable-multimedia --disable-wav --jvm=no; \
    make -j; \
    make install)
 fi
