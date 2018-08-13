@@ -4,7 +4,7 @@
 #*    -------------------------------------------------------------    */
 #*    Author      :  Manuel Serrano                                    */
 #*    Creation    :  Mon Aug 13 16:09:31 2018                          */
-#*    Last change :  Mon Aug 13 16:19:07 2018 (serrano)                */
+#*    Last change :  Mon Aug 13 16:44:11 2018 (serrano)                */
 #*    Copyright   :  2018 Manuel Serrano                               */
 #*    -------------------------------------------------------------    */
 #*    Bigloo install file                                              */
@@ -13,7 +13,7 @@
 [ -z "$CC" ] && CC=gcc
 [ -z "$CFLAGS" ] && CFLAGS=-O3
 
-if [ !-d $ONPUSH_DIR/opt/bigloo ]; then
+if [ ! -d $ONPUSH_DIR/opt/bigloo ]; then
   mkdir -p $ONPUSH_DIR/bootstrap/bigloo
   mkdir -p $ONPUSH_DIR/bootstrap/bigloo/dowload
   
