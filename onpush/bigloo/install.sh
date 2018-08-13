@@ -4,7 +4,7 @@
 #*    -------------------------------------------------------------    */
 #*    Author      :  Manuel Serrano                                    */
 #*    Creation    :  Mon Aug 13 16:09:31 2018                          */
-#*    Last change :  Mon Aug 13 16:44:11 2018 (serrano)                */
+#*    Last change :  Mon Aug 13 16:45:31 2018 (serrano)                */
 #*    Copyright   :  2018 Manuel Serrano                               */
 #*    -------------------------------------------------------------    */
 #*    Bigloo install file                                              */
@@ -24,15 +24,15 @@ if [ ! -d $ONPUSH_DIR/opt/bigloo ]; then
   (cd $ONPUSH_DIR/bootstrap/bigloo4.3b-last.tar.gz; \
    tar xvfz bigloo4.3b-last.tar.gz; \
    cd bigloo4.3b; \
-   ./configure --prefix=$ONPUSH_DIR/bootstrap --disable-avahi --disable-alsa --disable-gstreamer --disable-pulseaudio --disable-mpg123 --disable-flag --disable-multimedia --jvm=no; \
-   make; \
+   ./configure --prefix=$ONPUSH_DIR/bootstrap --disable-avahi --disable-alsa --disable-gstreamer --disable-pulseaudio --disable-mpg123 --disable-flag --disable-multimedia --disable-wav --jvm=no; \
+   make -j; \
    make install)
 fi
 
 # install the current Bigloo version
 if [ ! -z "`git diff HEAD HEAD^ ./configure`" -o ! -f config.log -o ! -d $ONPUSH_DIR/local ]; then
   echo "configuring bigloo..."
-  ./configure --prefix=$ONPUSH_DIR/local --cc=$CC --cflags=$CFLAGS --bigloo|| exit 1
+  ./configure --prefix=$ONPUSH_DIR/local --cc=$CC --cflags=$CFLAGS || exit 1
   make bigboot BGLBUILBINDIR=$ONPUSH_DIR/bootstrap/bin
   make install-progs
   echo "compiling and testing bigloo... "
