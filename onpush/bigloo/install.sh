@@ -4,7 +4,7 @@
 #*    -------------------------------------------------------------    */
 #*    Author      :  Manuel Serrano                                    */
 #*    Creation    :  Mon Aug 13 16:09:31 2018                          */
-#*    Last change :  Thu Aug 16 09:06:42 2018 (serrano)                */
+#*    Last change :  Thu Aug 16 09:46:20 2018 (serrano)                */
 #*    Copyright   :  2018 Manuel Serrano                               */
 #*    -------------------------------------------------------------    */
 #*    Bigloo install file                                              */
@@ -19,13 +19,13 @@ if [ ! -f $ONPUSH_DIR/bootstrap/bigloo ]; then
   
   # download a install a first Bigloo version used to bootstrap the github repo
   if [ ! -f $ONPUSH_DIR/download/bigloo4.3b-last.tar.gz ]; then
-    wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.3b-last.tar.gz -O $ONPUSH_DIR/download/bigloo4.3b-last.tar.gz
+    wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.3b-last.tar.gz -O $ONPUSH_DIR/download/bigloo-latest.tar.gz
   fi
 
   # install that version
   (cd $ONPUSH_DIR/bootstrap/bigloo; \
    echo "Untaring bigloo..."; \
-   tar xfz ../../download/bigloo4.3b-last.tar.gz; \
+   tar xfz ../../download/bigloo-latest.tar.gz; \
    cd bigloo4.3b; \
    ./configure --prefix=$ONPUSH_DIR/bootstrap/bigloo --disable-avahi --disable-alsa --disable-gstreamer --disable-pulseaudio --disable-mpg123 --disable-flac --disable-multimedia --disable-wav --jvm=no; \
    echo "Compiling bootstrap Bigloo $(PWD)"; \
