@@ -4,7 +4,7 @@
 #*    -------------------------------------------------------------    */
 #*    Author      :  Manuel Serrano                                    */
 #*    Creation    :  Mon Aug 13 16:09:31 2018                          */
-#*    Last change :  Thu Aug 16 08:55:27 2018 (serrano)                */
+#*    Last change :  Thu Aug 16 08:58:37 2018 (serrano)                */
 #*    Copyright   :  2018 Manuel Serrano                               */
 #*    -------------------------------------------------------------    */
 #*    Bigloo install file                                              */
@@ -36,7 +36,7 @@ fi
 # install the current Bigloo version
 if [ ! -z "`git diff HEAD HEAD^ ./configure`" -o ! -f config.log -o ! -d $ONPUSH_DIR/local ]; then
   echo "configuring bigloo..."
-  ./configure --cc=$CC --cflags=$CFLAGS || exit 1
+  ./configure --prefix=$PWD --cc=$CC --cflags=$CFLAGS || exit 1
   make bigboot BGLBUILDBINDIR=$ONPUSH_DIR/bootstrap/bigloo/bin
   make install-progs
   echo "compiling and testing bigloo... "
