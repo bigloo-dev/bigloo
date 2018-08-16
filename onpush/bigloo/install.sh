@@ -4,7 +4,7 @@
 #*    -------------------------------------------------------------    */
 #*    Author      :  Manuel Serrano                                    */
 #*    Creation    :  Mon Aug 13 16:09:31 2018                          */
-#*    Last change :  Thu Aug 16 11:26:50 2018 (serrano)                */
+#*    Last change :  Thu Aug 16 11:55:54 2018 (serrano)                */
 #*    Copyright   :  2018 Manuel Serrano                               */
 #*    -------------------------------------------------------------    */
 #*    Bigloo install file                                              */
@@ -47,7 +47,4 @@ else
   echo "compiling bigloo... "
   make -j && make install-sans-docs || exit 1
 fi
-
-  
-
 
