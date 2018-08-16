@@ -4,7 +4,7 @@
 #*    -------------------------------------------------------------    */
 #*    Author      :  Manuel Serrano                                    */
 #*    Creation    :  Mon Aug 13 16:09:31 2018                          */
-#*    Last change :  Thu Aug 16 10:57:26 2018 (serrano)                */
+#*    Last change :  Thu Aug 16 11:22:45 2018 (serrano)                */
 #*    Copyright   :  2018 Manuel Serrano                               */
 #*    -------------------------------------------------------------    */
 #*    Bigloo install file                                              */
@@ -45,7 +45,7 @@ if [ ! -z "`git diff HEAD HEAD^ ./configure`" -o ! -f config.log -o ! -d $ONPUSH
   make test && make install
 else  
   echo "compiling bigloo... "
-  make -j && make install
+  make -j && make install-sans-docs
 fi
 
   
