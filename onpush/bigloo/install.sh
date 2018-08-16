@@ -4,7 +4,7 @@
 #*    -------------------------------------------------------------    */
 #*    Author      :  Manuel Serrano                                    */
 #*    Creation    :  Mon Aug 13 16:09:31 2018                          */
-#*    Last change :  Thu Aug 16 09:46:20 2018 (serrano)                */
+#*    Last change :  Thu Aug 16 09:49:11 2018 (serrano)                */
 #*    Copyright   :  2018 Manuel Serrano                               */
 #*    -------------------------------------------------------------    */
 #*    Bigloo install file                                              */
@@ -18,8 +18,8 @@ if [ ! -f $ONPUSH_DIR/bootstrap/bigloo ]; then
   mkdir -p $ONPUSH_DIR/download
   
   # download a install a first Bigloo version used to bootstrap the github repo
-  if [ ! -f $ONPUSH_DIR/download/bigloo4.3b-last.tar.gz ]; then
-    wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.3b-last.tar.gz -O $ONPUSH_DIR/download/bigloo-latest.tar.gz
+  if [ ! -f $ONPUSH_DIR/download/bigloo-latest.tar.gz ]; then
+    wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo-latest.tar.gz -O $ONPUSH_DIR/download/bigloo-latest.tar.gz
   fi
 
   # install that version
