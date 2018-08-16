@@ -12,6 +12,8 @@ BRANCH=$1
 
 for h in $HOSTS; do 
   if [ "$h " = "$HOST " ]; then
+    mkdir -p $TMP
+    
     for s in $SYSTEMS; do
       if [ -d $ONPUSH_DIR/$s ]; then
         echo "system $s"
