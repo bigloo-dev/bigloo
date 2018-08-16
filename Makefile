@@ -3,7 +3,7 @@
 #*    -------------------------------------------------------------    */
 #*    Author      :  Manuel Serrano                                    */
 #*    Creation    :  Wed Jan 14 13:40:15 1998                          */
-#*    Last change :  Wed Jan 31 07:56:51 2018 (serrano)                */
+#*    Last change :  Mon Jun  4 12:04:55 2018 (serrano)                */
 #*    Copyright   :  1998-2018 Manuel Serrano, see LICENSE file        */
 #*    -------------------------------------------------------------    */
 #*    This Makefile *requires* GNU-Make.                               */
@@ -351,7 +351,7 @@ fullbootstrap-sans-log:
            $(RM) -f $(BOOTBINDIR)/bigloo.?????????.gz > /dev/null 2>&1; \
            cp $(BOOTBINDIR)/bigloo$(EXE_SUFFIX) $(BOOTBINDIR)/bigloo.$$dt$(EXE_SUFFIX); \
            $(GZIP) $(BOOTBINDIR)/bigloo.$$dt$(EXE_SUFFIX))
-	@ ./configure --bootconfig
+	@ ./configure --bootconfig $(CONFIGUREOPTS)
 	if [ "$(GCCUSTOM)" = "yes" ]; then \
 	  $(MAKE) -C gc clean; \
 	  $(MAKE) -C gc boot; \
@@ -372,7 +372,9 @@ fullbootstrap-sans-log:
 	$(MAKE) -C runtime -i touchall; $(MAKE) -C runtime heap libs-c
 	$(MAKE) -C comptime -i touchall; $(MAKE) -C comptime
 	$(MAKE) -C comptime -i touchall; $(MAKE) -C comptime
-	$(MAKE) -C runtime heap-jvm libs-jvm
+	if [ "$(JVMBACKEND)" = "yes" ]; then \
+	  $(MAKE) -C runtime heap-jvm libs-jvm; \
+        fi
 	$(MAKE) -C bde -i clean; $(MAKE) -C bde
 	$(MAKE) -C api fullbootstrap
 	$(MAKE) -C cigloo -i clean; $(MAKE) -C cigloo
@@ -382,7 +384,9 @@ fullbootstrap-sans-log:
 	fi
 	$(MAKE) -C recette -i touchall
 	$(MAKE) -C recette && (cd recette && ./recette$(EXE_SUFFIX))
-	$(MAKE) -C recette jvm && (cd recette && ./recette-jvm$(SCRIPTEXTENSION))
+	if [ "$(JVMBACKEND)" = "yes" ]; then \
+	  $(MAKE) -C recette jvm && (cd recette && ./recette-jvm$(SCRIPTEXTENSION)); \
+        fi
 	$(MAKE) -C recette clean
 	@ echo "Bigloo full bootstrap done..."
 	@ echo "-------------------------------"
@@ -401,7 +405,7 @@ c-fullbootstrap:
            $(RM) -f $(BOOTBINDIR)/bigloo.?????????.gz > /dev/null 2>&1; \
            cp $(BOOTBINDIR)/bigloo$(EXE_SUFFIX) $(BOOTBINDIR)/bigloo.$$dt$(EXE_SUFFIX); \
            $(GZIP) $(BOOTBINDIR)/bigloo.$$dt$(EXE_SUFFIX))
-	@ ./configure --bootconfig
+	@ ./configure --bootconfig $(CONFIGUREOPTS)
 	@ (cd comptime && $(MAKE) -i touchall; $(MAKE))
 	@ (cd runtime && $(MAKE) -i touchall; $(MAKE) heap libs-c gcs)
 	@ (cd comptime && $(MAKE) -i touchall; $(MAKE))

@@ -3,7 +3,7 @@
 /*    -------------------------------------------------------------    */
 /*    Author      :  Manuel Serrano                                    */
 /*    Creation    :  Sat Mar  5 08:05:01 2016                          */
-/*    Last change :  Sun Mar 18 07:17:45 2018 (serrano)                */
+/*    Last change :  Fri Apr 20 10:10:17 2018 (serrano)                */
 /*    Copyright   :  2016-18 Manuel Serrano                            */
 /*    -------------------------------------------------------------    */
 /*    Bigloo VECTORs                                                   */
@@ -55,24 +55,28 @@ struct bgl_hvector {
    unsigned long length;
 };
 
-#define VECTOR( o ) CVECTOR( o )->vector_t
-#define TVECTOR( tv ) CREF( tv )->tvector_t
-#define HVECTOR( o ) CREF( o )->hvector_t
-
 #define VECTOR_SIZE (sizeof( struct bgl_vector ))
 #define TVECTOR_SIZE (sizeof( struct bgl_tvector ))
 #define HVECTOR_SIZE (sizeof( struct bgl_hvector ))
+
+#define VECTOR( o ) CVECTOR( o )->vector
+#define TVECTOR( tv ) CREF( tv )->tvector
+#define HVECTOR( o ) CREF( o )->hvector
 
 /*---------------------------------------------------------------------*/
 /*    tagging                                                          */
 /*---------------------------------------------------------------------*/
 #if( defined( TAG_VECTOR ) )
-#   define BVECTOR( p ) ((obj_t)((long)p + TAG_VECTOR))
-#   define CVECTOR( p ) ((obj_t)((unsigned long)p - TAG_VECTOR))
-#   define VECTORP( c ) ((c && ((((long)c) & TAG_MASK) == TAG_VECTOR)))
+#   define BVECTOR( p ) BGL_BPTR( (obj_t)((long)p + TAG_VECTOR) )
+#   define CVECTOR( p ) BGL_CPTR( (obj_t)((unsigned long)p - TAG_VECTOR) )
+#   if( TAG_VECTOR != 0 ) 
+#      define VECTORP( c ) ((((long)c) & TAG_MASK) == TAG_VECTOR)
+#   else
+#      define VECTORP( c ) ((c) && ((((long)c) & TAG_MASK) == TAG_VECTOR))
+#   endif
 #else
 #   define BVECTOR( p ) BREF( p )
-#   define CVECTOR( p ) ((obj_t)((long)(p) - TAG_STRUCT))
+#   define CVECTOR( p ) BGL_CPTR( (obj_t)((unsigned long)(p) - TAG_STRUCT) )
 #   define VECTORP( c ) (POINTERP( c ) && (TYPE( c ) == VECTOR_TYPE))
 #endif
 
@@ -143,7 +147,7 @@ struct bgl_hvector {
 		   unsigned long length; \
 		   obj_t descr; \
 		   itype items[ len ]; } \
-      aux = { __CNST_FILLER, MAKE_HEADER( TVECTOR_TYPE, 0 ), len, 0L,
+      aux = { __CNST_FILLER MAKE_HEADER( TVECTOR_TYPE, 0 ), len, 0L,
 	      
 #define DEFINE_TVECTOR_STOP( name, aux ) \
 	   }; static obj_t name = BREF( &(aux.header) )
@@ -154,18 +158,18 @@ struct bgl_hvector {
       an_object = MALLOC(sizeof(struct bgl_tvector_of_##_item_name)    \
                          +                                             \
                          ((_len-1) * sizeof(_item_type))),             \
-     (an_object->tvector_t).header = MAKE_HEADER( TVECTOR_TYPE, 0 ),   \
-     (an_object->tvector_t).length = _len,                             \
-     (an_object->tvector_t).descr = _descr,                            \
+     (an_object->tvector).header = MAKE_HEADER( TVECTOR_TYPE, 0 ),   \
+     (an_object->tvector).length = _len,                             \
+     (an_object->tvector).descr = _descr,                            \
        ( BREF( an_object ) ); })
 #else
 # define ALLOCATE_TVECTOR_MALLOC( MALLOC, _item_name, _item_type, _len, _descr )   \
     (an_object = MALLOC(sizeof(struct bgl_tvector_of_##_item_name)     \
                         +                                              \
                         ((_len-1) * sizeof(_item_type))),              \
-    (an_object->tvector_t).header = MAKE_HEADER( TVECTOR_TYPE, 0 ),    \
-    (an_object->tvector_t).length = _len,                              \
-    (an_object->tvector_t).descr = _descr,                             \
+    (an_object->tvector).header = MAKE_HEADER( TVECTORYPE, 0 ),    \
+    (an_object->tvector).length = _len,                              \
+    (an_object->tvector).descr = _descr,                             \
        ( BREF( an_object ) ) )
 #endif
 
@@ -191,7 +195,6 @@ struct bgl_hvector {
 /*---------------------------------------------------------------------*/
 /*    HVECTOR                                                          */
 /*---------------------------------------------------------------------*/
-   
 #define STVECTOR( o, type ) \
    ((struct { header_t header; unsigned long length; type obj0; } *)(CREF( o )))
    

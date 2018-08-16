@@ -1,10 +1,10 @@
 ;*=====================================================================*/
-;*    serrano/prgm/project/bigloo/runtime/Llib/bconfigure.scm          */
+;*    .../prgm/project/bigloo/bigloo/runtime/Llib/bconfigure.scm       */
 ;*    -------------------------------------------------------------    */
 ;*    Author      :  Manuel Serrano                                    */
 ;*    Creation    :  Fri Dec 29 09:31:00 2000                          */
-;*    Last change :  Thu Oct  5 18:06:49 2017 (serrano)                */
-;*    Copyright   :  2000-17 Manuel Serrano                            */
+;*    Last change :  Mon May  7 09:53:26 2018 (serrano)                */
+;*    Copyright   :  2000-18 Manuel Serrano                            */
 ;*    -------------------------------------------------------------    */
 ;*    The machine dependent configuration.                             */
 ;*    -------------------------------------------------------------    */
@@ -60,6 +60,7 @@
 	   (macro $configure-c-compiler-rpath::string "C_COMPILER_RPATH")
 	   (macro $configure-c-flags::string "C_FLAGS")
 	   (macro $configure-c-pic-flag::string "C_PICFLAGS")
+	   (macro $configure-c-nan-flag::string "C_NANFLAGS")
 	   (macro $configure-c-strip-flag::string "C_STRIP_FLAGS")
 	   (macro $configure-c-prof-flag::string "C_PROFILE_FLAGS")
            (macro $configure-c-object-file-extension::string "C_OBJECT_FILE_EXTENSION")
@@ -102,6 +103,7 @@
 	   (macro $configure-dns-cache-enabled::bool "BGL_DNS_CACHE")
 	   (macro $configure-big-endian::bool "BGL_BIG_ENDIAN")
 	   (macro $configure-regexp-family::string "BGL_REGEXP_FAMILY")
+	   (macro $configure-nan-tagging::bool "BGL_NAN_TAGGING")
 	   (macro $configure-int-size::int "BGL_INT_BIT_SIZE")
 	   (macro $configure-elong-size::int "BGL_ELONG_BIT_SIZE")
 	   (macro $configure-have-unistring::bool "BGL_HAVE_UNISTRING")
@@ -132,6 +134,7 @@
 	      (field static c-compiler-rpath::string "C_COMPILER_RPATH")
 	      (field static c-flags::string "C_FLAGS")
 	      (field static c-pic-flag::string "C_PICFLAGS")
+	      (field static c-nan-flag::string "C_NANFLAGS")
 	      (field static c-strip-flag::string "C_STRIP_FLAGS")
 	      (field static c-prof-flag::string "C_PROFILE_FLAGS")
               (field static c-object-file-extension::string "C_OBJECT_FILE_EXTENSION")
@@ -175,6 +178,7 @@
 	      (field static regexp-family::string "BGL_REGEXP_FAMILY")
 	      (field static int-size::int "BGL_INT_BIT_SIZE")
 	      (field static elong-size::int "BGL_ELONG_BIT_SIZE")
+	      (field static nan-tagging::bool "BGL_NAN_TAGGING")
 	      (field static have-unistring::bool "BGL_HAVE_UNISTRING")
 	      (field static have-syslog::bool "BGL_HAVE_SYSLOG")
 	      (field static have-overflow::bool "BGL_HAVE_OVERFLOW")
@@ -217,6 +221,7 @@
      (c-compiler-rpath . ,$configure-c-compiler-rpath)
      (c-flags . ,$configure-c-flags)
      (c-pic-flag . ,$configure-c-pic-flag)
+     (c-nan-flag . ,$configure-c-nan-flag)
      (c-strip-flag . ,$configure-c-strip-flag)
      (c-prof-flag . ,$configure-c-prof-flag)
      (c-object-file-extension . ,$configure-c-object-file-extension)
@@ -263,6 +268,7 @@
      (regexp . ,$configure-regexp-family)
      (int-size . ,$configure-int-size)
      (elong-size . ,$configure-elong-size)
+     (nan-tagging . ,$configure-nan-tagging)
      (have-unistring . ,$configure-have-unistring)
      (have-syslog . ,$configure-have-syslog)
      (have-overflow . ,$configure-have-overflow)

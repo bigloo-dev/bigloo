@@ -1,9 +1,9 @@
 ;*=====================================================================*/
-;*    serrano/prgm/project/bigloo/runtime/Llib/error.scm               */
+;*    serrano/prgm/project/bigloo/bigloo/runtime/Llib/error.scm        */
 ;*    -------------------------------------------------------------    */
 ;*    Author      :  Manuel Serrano                                    */
 ;*    Creation    :  Fri Jan 20 08:19:23 1995                          */
-;*    Last change :  Mon Dec 12 07:21:57 2016 (serrano)                */
+;*    Last change :  Fri Jun 15 15:17:15 2018 (serrano)                */
 ;*    -------------------------------------------------------------    */
 ;*    The error machinery                                              */
 ;*    -------------------------------------------------------------    */
@@ -266,7 +266,7 @@
 	    (set! *unsafe-range*   #t))
 
    (pragma  (typeof no-cfa-top args-safe)))
- 
+
 ;*---------------------------------------------------------------------*/
 ;*    get-trace-stack ...                                              */
 ;*---------------------------------------------------------------------*/
@@ -700,7 +700,9 @@
 		      (let ((lstring (read-line port)))
 			 (if (eof-object? lstring)
 			     (values fname lnum (+fx 1 (-fx point opos))
-				(string-append ostring "<eof>"))
+				(if (string? ostring)
+				    (string-append ostring "<eof>")
+				    "<eof>"))
 			     (if (>fx (input-port-position port) point)
 				 (values file lnum (-fx point opos) lstring)
 				 (let ((opos (input-port-position port)))
@@ -1165,7 +1167,7 @@
       ((tvector? obj)
        "tvector")
       ((struct? obj)
-       "struct")
+       (string-append "struct:" (symbol->string! (struct-key obj))))
       ((procedure? obj)
        "procedure")
       ((input-port? obj)

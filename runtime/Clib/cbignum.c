@@ -1,10 +1,10 @@
 /*=====================================================================*/
-/*    serrano/prgm/project/bigloo/runtime/Clib/cbignum.c               */
+/*    serrano/prgm/project/bigloo/bigloo/runtime/Clib/cbignum.c        */
 /*    -------------------------------------------------------------    */
-/*    Author      :  José Romildo Malaquias                            */
+/*    Author      :  JosÃ© Romildo Malaquias                            */
 /*    Creation    :  Fri Nov 10 11:51:17 2006                          */
-/*    Last change :  Thu Jul 27 12:55:05 2017 (serrano)                */
-/*    Copyright   :  2003-17 Manuel Serrano                            */
+/*    Last change :  Mon Apr 23 07:57:36 2018 (serrano)                */
+/*    Copyright   :  2003-18 Manuel Serrano                            */
 /*    -------------------------------------------------------------    */
 /*    C implementation of bignum                                       */
 /*=====================================================================*/
@@ -50,9 +50,9 @@ static obj_t
 make_bignum( size_t sz ) {
    obj_t o = GC_MALLOC( BIGNUM_SIZE );
    
-   o->bignum_t.header = MAKE_HEADER( BIGNUM_TYPE, 0 );
-   o->bignum_t.mpz._mp_d = (mp_limb_t *)GC_MALLOC_ATOMIC( sz * sizeof( mp_limb_t ) );
-   o->bignum_t.mpz._mp_alloc = sz;
+   o->bignum.header = MAKE_HEADER( BIGNUM_TYPE, 0 );
+   o->bignum.mpz._mp_d = (mp_limb_t *)GC_MALLOC_ATOMIC( sz * sizeof( mp_limb_t ) );
+   o->bignum.mpz._mp_alloc = sz;
 
    return BREF( o );
 }
@@ -740,7 +740,7 @@ obj_t
 bgl_safe_bignum_to_fixnum( obj_t bx ) {
    size_t bs = mpz_sizeinbase( &(BIGNUM(bx).mpz), 2 );
 
-   if( bs < ((sizeof( long ) * 8) - TAG_SHIFT) )
+   if( bs < BGL_INT_BIT_SIZE )
       return BINT( bgl_bignum_to_long( bx ) );
    else
       return bx;
@@ -784,7 +784,8 @@ bgl_safe_mul_fx( long x, long y ) {
    if( !y || !x )
       return BINT( 0 );
    else {
-      long z = ((x * y) << PTR_ALIGNMENT) >> PTR_ALIGNMENT;
+      //long z = ((x * y) << PTR_ALIGNMENT) >> PTR_ALIGNMENT;
+      long z = CINT( BINT( (x * y) ) );
 
       if( z / y == x && z % y == 0 )
 	 return BINT( z );
@@ -800,10 +801,15 @@ bgl_safe_mul_fx( long x, long y ) {
 /*---------------------------------------------------------------------*/
 BGL_RUNTIME_DEF obj_t
 bgl_safe_quotient_fx( long x, long y ) {
-   if( x == LONG_MIN >> TAG_SHIFT && y == -1 )
+   if( x == BGL_LONG_MIN && y == -1 ) {
       return bgl_bignum_div( bgl_long_to_bignum( x ), bgl_long_to_bignum( y ) );
-   else
-      return BINT( x/y );
+   } else {
+#if( !BGL_NAN_TAGGING )
+      return BINT( x / y );
+#else
+      return BINT( x / y );
+#endif
+   }
 }
 
 /*---------------------------------------------------------------------*/
@@ -985,8 +991,8 @@ obj_t
 bgl_make_bignum( obj_t v ) {
    obj_t o = GC_MALLOC( BIGNUM_SIZE );
    
-   o->bignum_t.header = MAKE_HEADER( BIGNUM_TYPE, 0 );
-   o->bignum_t.u16vect = v;
+   o->bignum.header = MAKE_HEADER( BIGNUM_TYPE, 0 );
+   o->bignum.u16vect = v;
 
    return BREF( o );
 }

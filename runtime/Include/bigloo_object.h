@@ -3,7 +3,7 @@
 /*    -------------------------------------------------------------    */
 /*    Author      :  Manuel Serrano                                    */
 /*    Creation    :  Sat Mar  5 08:05:01 2016                          */
-/*    Last change :  Sun Mar 18 07:16:58 2018 (serrano)                */
+/*    Last change :  Wed May  9 12:12:45 2018 (serrano)                */
 /*    Copyright   :  2016-18 Manuel Serrano                            */
 /*    -------------------------------------------------------------    */
 /*    Bigloo OBJECTs                                                   */
@@ -52,13 +52,11 @@ typedef struct BgL_objectz00_bgl {
    (BGL_TAG_CNSTP(o) && (((unsigned long)o) < ((unsigned long)0xff << 24)))
 #  define BOBJECT( o ) ((obj_t)((unsigned long)o + TAG_CNST))
 #  define COBJECT( o ) ((obj_t)((unsigned long)o - TAG_CNST))
-#elif( defined( TAG_OBJECT) )
-#  if( TAG_OBJECT == 0 )
-#    define BGL_OBJECTP( o ) \
-       ((((long)o) & TAG_MASK) == TAG_OBJECT)
+#elif( defined( TAG_OBJECT ) )
+#  if( TAG_OBJECT != 0 )
+#    define BGL_OBJECTP( o ) ((((long)o) & TAG_MASKOBJECT) == TAG_OBJECT)
 #  else
-#    define BGL_OBJECTP( o ) \
-       ((o) && (((long)o) & TAG_MASK) == TAG_OBJECT)
+#    define BGL_OBJECTP( o ) ((o) && (((long)o) & TAG_MASKOBJECT) == TAG_OBJECT)
 #  endif
 #  define BOBJECT( o ) ((obj_t)((unsigned long)o + TAG_OBJECT))
 #  define COBJECT( o ) ((obj_t)((unsigned long)o - TAG_OBJECT))
@@ -67,6 +65,20 @@ typedef struct BgL_objectz00_bgl {
     ((POINTERP( o ) && (TYPE( o ) >= OBJECT_TYPE)))
 #  define BOBJECT( o ) BREF( o )
 #  define COBJECT( o ) CREF( o )
+#endif
+
+#if( defined( TAG_NANOBJECT ) )
+#  if( TAG_NANOBJECT != 0 )
+#    define BGL_NANOBJECTP( o ) ((((long)o) & TAG_MASK) == TAG_NANOBJECT)
+#  else
+#    define BGL_NANOBJECTP( o ) ((o) && (((long)o) & TAG_MASK) == TAG_NANOBJECT)
+#  endif
+#  define BNANOBJECT( o ) ((obj_t)((unsigned long)o + TAG_NANOBJECT))
+#  undef COBJECT
+#  define COBJECT( o ) ((obj_t)((unsigned long)o & ~(TAG_MASK)))
+#else
+#  define BGL_NANOBJECTP( o ) (0)
+#  define BNANOBJECT( o ) BOBJECT( o )
 #endif
 
 /*---------------------------------------------------------------------*/
@@ -99,7 +111,7 @@ typedef struct BgL_objectz00_bgl {
 #define BGL_CLASSP( o ) (POINTERP( o ) && (TYPE( o ) == CLASS_TYPE))
 
 #define BGL_CLASS_SIZE (sizeof( struct bgl_class ) )
-#define BGL_CLASS( f ) (CREF( f )->class_t)
+#define BGL_CLASS( f ) (CREF( f )->class)
    
 #define BGL_CLASS_NAME( f ) (BGL_CLASS( f ).name)
    

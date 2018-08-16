@@ -4,7 +4,7 @@
 #*    -------------------------------------------------------------    */
 #*    Author      :  Manuel Serrano                                    */
 #*    Creation    :  Tue Jan 25 16:05:10 1994                          */
-#*    Last change :  Sat Mar 24 18:55:44 2018 (serrano)                */
+#*    Last change :  Mon Aug  6 10:18:56 2018 (serrano)                */
 #*    Copyright   :  1994-2018 Manuel Serrano, see LICENSE file        */
 #*    -------------------------------------------------------------    */
 #*    The Bigloo configuration file                                    */
@@ -75,7 +75,8 @@ cpicflags="demanded" # Possible values for cpicflags are:
              #  - "demanded" auto configuration but with a preference to "no"
              #  - any legal C compiler option that enables PIC code.
              #  - blank (uninitalized) for automatic configuration of the
-             #    position independent code compiler option
+#    position independent code compiler option
+cnanflags=-DBGL_NAN_TAGGING=0
 as=          # left blank for autoconfiguration
 ar=          # left blank for autoconfiguration
 ranlib=      # left blank for autoconfiguration
@@ -95,6 +96,8 @@ gcconfigurethreadsopt=--enable-thread
 
 belong_prealloc_min=-10
 belong_prealloc_max=100
+
+bglnantagging=0
 
 #*--- Java back-end user configuration --------------------------------*/
 jvmbackend=no # set to "no" not to install the Jvm back-end
@@ -233,9 +236,11 @@ libuvlibs=
 libuvcflags=
 customlibuv=yes
 libuvconfigureopt=
-libuvversion=master-18jul2014
-libuvversion=1.x-24jan2015
-libuvversion=v1.19.1
+#* libuvversion=master-18jul2014                                       */
+#* libuvversion=1.x-24jan2015                                          */
+#* libuvversion=v1.19.1                                                */
+#* libuvversion=v1.19.2                                                */
+libuvversion=v1.20.3
 
 #*--- patch (left blank for autoconfiguration) ------------------------*/
 patchapi=
@@ -266,7 +271,9 @@ customgc=yes
 gccustom=gc-7.6.2
 gcversion=
 gcbump=0
-# the following variable is relevant only when using
+cgcflags=
+
+# the following variables are relevant only when using
 # standard (i.e. already existing and operational) Boehm's GC
 # and when customgc=no
 stdgclib=gc
@@ -462,8 +469,8 @@ while : ; do
       sharedcompiler=no;
       sharedbde=yes;
       infodir=$HOME/house/info;
-      java=java;
-      javac=javac;
+      java=java8;
+      javac=javac8;
       ld=gcc;
       cflags="$cflags -Wpointer-arith -Wswitch -Wtrigraphs -DBGL_BOOTCONFIG";
       coflags="$coflags";
@@ -558,6 +565,9 @@ while : ; do
     --gcparallelmark=*)
       gcparallelmark="`echo $1 | sed 's/^[^=]*=//'`";;
 
+    --gcbump)
+      gcbump=1;;
+    
     --gcbump=*)
       if [ "`echo $1 | sed 's/^[^=]*=//'` " = "yes " ]; then
         gcbump=1;
@@ -870,6 +880,9 @@ while : ; do
     --mingw=yes)
       mingw="yes";;
 
+    --nan-tagging)
+      bglnantagging=1;;
+      
     --enable-thread|--enable-threads)
       threadsupport=yes;
       addp=1;
@@ -1078,7 +1091,6 @@ while : ; do
       echo "   --gccustomversion=version (custom gc version, e.g., \"gc-7.1\")" >&2;
       echo "   --gccustominstall=[install|skip] (configure and install the gc)" >&2;
       echo "   --gcparallelmark=[yes|no] (configure the gc for parallel mark)" >&2;
-      echo "   --gcbump=[yes|no] (configure the gc for bump allocation)" >&2;
       echo "" >&2;
       echo "Tools and compilers:"  >&2;
       echo "   --bigloo=comp [default bigloo]" >&2;
@@ -1177,6 +1189,10 @@ while : ; do
       echo "   --thirdparty-configure-opt=opt" >&2;
       echo "   --configureinfo=yes|no [default no]" >&2;
       echo "" >&2;
+      echo "Experimental features:"  >&2;
+      echo "   --gcbump=[yes|no] (configure the gc for bump allocation)" >&2;
+      echo "   --nan-tagging" >&2;
+      echo "" >&2;
       echo "Environment variables:" >&2;
       echo "CC         C compiler command" >&2;
       echo "CFLAGS     C compiler flags" >&2;
@@ -1219,6 +1235,7 @@ if [ "$bigloo_h " = " " ]; then
   bigloo_cell_h=lib/bigloo/$release/bigloo_cell.h
   bigloo_semaphore_h=lib/bigloo/$release/bigloo_semaphore.h
   bigloo_object_h=lib/bigloo/$release/bigloo_object.h
+  bigloo_exit_h=lib/bigloo/$release/bigloo_exit.h
 fi
 
 # The bigloo_gc.h file
@@ -1647,6 +1664,23 @@ if [ "$buildosversion " = " " ]; then
 fi
 
 #*---------------------------------------------------------------------*/
+#*    Pointer alignment                                                */
+#*---------------------------------------------------------------------*/
+alignment=`$autoconf alignment` || exit 1
+
+if [ "$alignment" = "3" ]; then
+  if [ "$bglnantagging " != "0 " ]; then
+    intsize=32
+  else
+    intsize=61
+  fi
+  elongsize=64
+else
+  intsize=30
+  elongsize=32
+fi
+
+#*---------------------------------------------------------------------*/
 #*    Autoconfigure hostos specific configuration                      */
 #*---------------------------------------------------------------------*/
 echo "+ Post host specific configuration ($hostos)..." >> $configurelog
@@ -1979,7 +2013,7 @@ else
   # pthread kill
   if [ "$pthreadlibs" != "no" ]; then
     pthreadkill=`$autoconf pthreadkill --lib="$pthreadlibs"` || exit 1;
-    cgcflags="$gcflags -DBGL_$pthreadkill"
+    cgcflags="$cgcflags -DBGL_$pthreadkill"
   fi
   
   # get the number of processors of the machine
@@ -2030,9 +2064,21 @@ echo >> $configurelog
 #*    GC configuration                                                 */
 #*---------------------------------------------------------------------*/
 if [ "$action" != "bigloo_config_el" ]; then
+  if [ "$bglnantagging " != "0 " ]; then
+    if [ "$alignment" = "3" ]; then 
+      customgc=yes;
+      bglnantagging=64;
+      cnanflags="-DBGL_NAN_TAGGING=64";
+      cgcflags="-DPOINTER_MASK=0xffffffffffff $cgcflags";
+    else
+      echo "*** ERROR: Nan-tagging requires 64bit platforms"
+      exit 1
+    fi
+  fi
+
   echo "+ GC configuration ($customgc)..." >> $configurelog
   
-  cgcflags=`$autoconf gcflags` || exit 1
+  cgcflags="`$autoconf gcflags` $cgcflags" || exit 1
   
   # We check the standard GC if we have to use one
   if [ "$customgc " = "no " ]; then
@@ -2598,17 +2644,6 @@ if [ $action = "all" -o $action = "bigloo_config" ]; then
   cbraflags=`$autoconf ccbracket` || exit 1
   cflags="$cflags $cbraflags"
 
-  # The pointer alignment
-  alignment=`$autoconf alignment` || exit 1
-
-  if [ "$alignment" = "3" ]; then 
-    intsize=61
-    elongsize=64
-  else
-    intsize=30
-    elongsize=32
-  fi
-
   # The -O C compiler options
   coflags=`$autoconf ccoptim --cflags="$coflags"` || exit 1
 
@@ -2627,6 +2662,11 @@ if [ $action = "all" -o $action = "bigloo_config" ]; then
 
   # C compiler nan and infinity
   ccdiv0=`$autoconf ccdiv0` || exit 1
+
+  # C compiler sse and math operations on x86-32 architecture
+  if [ "$alignment " = "2 " ]; then
+    cflags="$cflags `$autoconf ccssex86`"
+  fi
 
   # oscharset
   if [ "$oscharset " = " " ]; then
@@ -3238,6 +3278,7 @@ if [ $action = "all" -o $action = "bigloo_config" ]; then
               -e "s|@PTR_ALIGNMENT@|$alignment|" \
               -e "s|@INT_BIT_SIZE@|$intsize|" \
               -e "s|@ELONG_BIT_SIZE@|$elongsize|" \
+              -e "s|@BGL_NAN_TAGGING@|$bglnantagging|" \
               -e "s|@BGL_ISOC99@|$isoc99|" \
               -e "s|@BGL_HAS_ERRNOH@|$errnoh|" \
               -e "s|@BGL_CCDIV0@|$ccdiv0|" \
@@ -3329,6 +3370,7 @@ if [ $action = "all" -o $action = "bigloo_config" ]; then
               -e "s|@C_LD@|$ld|" \
               -e "s|@C_FLAGS@|$cflags|" \
               -e "s|@C_PICFLAGS@|$cpicflags|" \
+              -e "s|@C_NANFLAGS@|$cnanflags|" \
               -e "s|@C_COMPILER_O_OPTION@|-o |" \
               -e "s|@C_COMPILER_DEBUG_OPTION@|-g|" \
               -e "s|@C_OBJECT_FILE_EXTENSION@|$cobj|" \
@@ -3446,6 +3488,7 @@ if [ $action = "all" -o $action = "bigloo_config" ]; then
   cp runtime/Include/`basename $bigloo_cell_h` $bigloo_cell_h
   cp runtime/Include/`basename $bigloo_semaphore_h` $bigloo_semaphore_h
   cp runtime/Include/`basename $bigloo_object_h` $bigloo_object_h
+  cp runtime/Include/`basename $bigloo_exit_h` $bigloo_exit_h
 
   # bigloo.sh
   for p in bigloo.sh bglafile.sh bgljfile.sh bgltags.sh bgldepend.sh bglmco.sh bglrun.sh bglld.sh bglmake.sh bgljas.sh bglpp.sh bglprof.sh; do
@@ -3480,10 +3523,10 @@ if [ $action = "all" -o $action = "bigloo_static" ]; then
   max=`expr $belong_prealloc_max - 1`;
   i=$belong_prealloc_min
   while expr $i "<" $max > /dev/null; do
-    echo "  { header: MAKE_HEADER( ELONG_TYPE, ELONG_SIZE ), elong: $i }, " >> $bigloo_static_h
+    echo "  { header: MAKE_HEADER( ELONG_TYPE, ELONG_SIZE ), val: $i }, " >> $bigloo_static_h
     i=`expr $i + 1`;
   done
-  echo "  { header: MAKE_HEADER( ELONG_TYPE, ELONG_SIZE ), elong: $i } }; " >> $bigloo_static_h
+  echo "  { header: MAKE_HEADER( ELONG_TYPE, ELONG_SIZE ), val: $i } }; " >> $bigloo_static_h
   echo "" >> $bigloo_static_h
   echo "#if( !defined( BGL_CNST_SHIFT_INT32 ) )" >> $bigloo_static_h
   echo "#define BGL_INT32_PREALLOC_MIN $belong_prealloc_min" >> $bigloo_static_h
@@ -3752,6 +3795,7 @@ if [ $action = "all" -o $action = "Makefile.config" ]; then
   echo "CFLAGS=$coflags $cflags" >> $makefile_cfg
   echo "CSTRIPFLAGS=$csflags" >> $makefile_cfg
   echo "CPICFLAGS=$cpicflags" >> $makefile_cfg
+  echo "CNANFLAGS=$cnanflags" >> $makefile_cfg
   echo "CFLAGS_P=$""(CFLAGS) $cpflags" >> $makefile_cfg
   
   # Close and extra libs
@@ -3760,7 +3804,7 @@ if [ $action = "all" -o $action = "Makefile.config" ]; then
   echo >> $makefile_cfg
 
   # The GC library
-  echo "CGCFLAGS=$cgcflags $cgcfinalflags $gcspecial -I$""(BOOTLIBDIR) $""(CPICFLAGS)" >> $makefile_cfg
+  echo "CGCFLAGS=$cgcflags $cgcfinalflags $gcspecial -I$""(BOOTLIBDIR) $""(CPICFLAGS) $""(CPICFLAGS)" >> $makefile_cfg
   echo "EXTRAGCLIBS=$extragclibs" >> $makefile_cfg
   echo "CUSTOMGC=$gccustom" >> $makefile_cfg
   echo "GCLIB=$gclib" >> $makefile_cfg
@@ -4721,6 +4765,7 @@ echo "  options for compiling................. $cflags" >> $configurelog
 echo "  options for optimizing................ $coflags" >> $configurelog
 echo "  options for stripping................. $csflags" >> $configurelog
 echo "  options for PIC code.................. $cpicflags" >> $configurelog
+echo "  options for NAN code.................. $cnanflags" >> $configurelog
 echo "  options for profiling................. $cpflags" >> $configurelog
 echo "  options for linking................... $extralibs" >> $configurelog
 echo "  assembly.............................. $as" >> $configurelog
@@ -4838,6 +4883,11 @@ if [ "$summary" = "yes" ]; then
   echo "Implementation details:"
   echo "  tuning...................... $mode $tuning"
   echo "  cc.......................... $cc"
+  if [ $bglnantagging != "0" ]; then
+    echo "  nan tagging................. $bglnantagging"
+  else
+    echo "  nan tagging................. no"
+  fi
   if [ $customgc = "yes" ];then
      echo "  gc.......................... custom ($gclib-$release, v$gcversion)"
   else

@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------*/
-/*    serrano/prgm/project/bigloo/runtime/Clib/cmain.c                 */
+/*    serrano/prgm/project/bigloo/bigloo/runtime/Clib/cmain.c          */
 /*                                                                     */
 /*    Author      :  Manuel Serrano                                    */
 /*    Creation    :  Fri Jul 17 09:40:49 1992                          */
-/*    Last change :  Fri Nov 14 18:14:12 2014 (serrano)                */
+/*    Last change :  Mon Jul  9 17:26:01 2018 (serrano)                */
 /*                                                                     */
 /*    Le fichier de main de toute application. Comme je m'y prends     */
 /*    plus intelligement que dans la version 0.8 (si, si :-), je       */

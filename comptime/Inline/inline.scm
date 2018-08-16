@@ -1,10 +1,10 @@
 ;*=====================================================================*/
-;*    serrano/prgm/project/bigloo/comptime/Inline/inline.scm           */
+;*    .../prgm/project/bigloo/bigloo/comptime/Inline/inline.scm        */
 ;*    -------------------------------------------------------------    */
 ;*    Author      :  Manuel Serrano                                    */
 ;*    Creation    :  Tue Jan 10 09:04:27 1995                          */
-;*    Last change :  Sun May  7 08:35:49 2017 (serrano)                */
-;*    Copyright   :  1995-2017 Manuel Serrano, see LICENSE file        */
+;*    Last change :  Sat Apr 21 18:14:05 2018 (serrano)                */
+;*    Copyright   :  1995-2018 Manuel Serrano, see LICENSE file        */
 ;*    -------------------------------------------------------------    */
 ;*    The ast inlining.                                                */
 ;*=====================================================================*/
@@ -59,7 +59,7 @@
 		     (eq? (variable-removable variable) 'cgen))
                  (and (global? variable)
                       (not (eq? (global-import variable) 'static))))
-             (inline-node inl-body kfactor (cons variable stack))
+	     (inline-node inl-body kfactor (cons variable stack))
              inl-body)))
    (trace (inline inline+ 0)
       "--- END SCANNING: " (shape variable) " ----" #\Newline))

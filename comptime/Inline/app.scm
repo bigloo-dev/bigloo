@@ -1,10 +1,10 @@
 ;*=====================================================================*/
-;*    serrano/prgm/project/bigloo/comptime/Inline/app.scm              */
+;*    serrano/prgm/project/bigloo/bigloo/comptime/Inline/app.scm       */
 ;*    -------------------------------------------------------------    */
 ;*    Author      :  Manuel Serrano                                    */
 ;*    Creation    :  Tue Jan 10 18:43:56 1995                          */
-;*    Last change :  Wed Feb 22 11:54:49 2017 (serrano)                */
-;*    Copyright   :  1995-2017 Manuel Serrano, see LICENSE file        */
+;*    Last change :  Sat Apr 21 18:15:15 2018 (serrano)                */
+;*    Copyright   :  1995-2018 Manuel Serrano, see LICENSE file        */
 ;*    -------------------------------------------------------------    */
 ;*    The inlining of application node                                 */
 ;*=====================================================================*/
@@ -92,14 +92,17 @@
 ;*---------------------------------------------------------------------*/
 (define (inline-app? var::variable kfactor::long call-size::long stack)
    (trace (inline inline+ 0)
-	  "inline-app?: " (shape var)
-	  " [kfactor:" kfactor
-	  "] [stack: " (shape stack) "] ... ")
+      "inline-app?: " (shape var)
+      " [kfactor:" kfactor
+      "] [stack: " (shape stack) "] ... ")
    (let* ((sfun (variable-value var))
 	  (body (if (isfun? sfun)
 		    (isfun-original-body sfun)
 		    (sfun-body sfun))))
       (cond
+	 ((not (isa? body node))
+	  (trace (inline inline+ 0) " no (no body)" #\Newline)
+          #f)
          ((not *inlining?*)
           ;; no, because the user said so
           (trace (inline inline+ 0) " no (no-inlining option)" #\Newline)
@@ -143,32 +146,32 @@
 	 ((<fx (node-size body) (*fx kfactor call-size))
           ;; yes, because the size does not grew
 	  (trace (inline inline+ 0) " yes, small enough (size: "
- 		 (node-size body)
-		 " max: " (*fx kfactor call-size)
-		 ")"
-		 #\newline)
+	     (node-size body)
+	     " max: " (*fx kfactor call-size)
+	     ")"
+	     #\newline)
           #t)
 	 ((and (=fx (node-size body) call-size) (not (memq var stack)))
 	  ;; yes, because the call and the body are of the same size
 	  ;; and we are not inlining an infinite loop
 	  (trace (inline inline+ 0) "yes, same size and not in stack (size: "
- 		 (node-size body)
-		 ")"
-		 #\newline)
+	     (node-size body)
+	     ")"
+	     #\newline)
 	  #t)
 	 ((and (=fx (variable-occurrence var) 1)
 	       (or (not (global? var)) (eq? (global-import var) 'static))
 	       (isa? (sfun-body (variable-value var)) retblock))
 	  (trace (inline inline+ 0) "yes, because static 1 occ retblock"
-		 ")"
-		 #\newline)
+	     ")"
+	     #\newline)
 	  #t)
 	 (else
           ;; no, because the function is too large
           (trace (inline inline+ 0) " no, too large (size: "
-		 (node-size body)
-		 " max: " (*fx kfactor call-size)
-		 ")"
-		 #\newline)
+	     (node-size body)
+	     " max: " (*fx kfactor call-size)
+	     ")"
+	     #\newline)
           #f))))
  
