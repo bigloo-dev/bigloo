@@ -4,7 +4,7 @@
 #*    -------------------------------------------------------------    */
 #*    Author      :  Manuel Serrano                                    */
 #*    Creation    :  Mon Aug 13 16:09:31 2018                          */
-#*    Last change :  Thu Aug 16 10:38:29 2018 (serrano)                */
+#*    Last change :  Thu Aug 16 10:57:26 2018 (serrano)                */
 #*    Copyright   :  2018 Manuel Serrano                               */
 #*    -------------------------------------------------------------    */
 #*    Bigloo install file                                              */
@@ -40,9 +40,9 @@ if [ ! -z "`git diff HEAD HEAD^ ./configure`" -o ! -f config.log -o ! -d $ONPUSH
   echo "bootstrapping bigloo..."
   make -j bigboot BGLBUILDBINDIR=$ONPUSH_DIR/bootstrap/bigloo/bin
   make install-progs
-#*   echo "compiling and testing bigloo... "                           */
-#*   make -j fullbootstrap-sans-log CONFIGUREOPTS="--jvm=no"           */
-#*   make test && make install                                         */
+  echo "compiling and testing bigloo... "
+  make -j fullbootstrap-sans-log CONFIGUREOPTS="--jvm=no"
+  make test && make install
 else  
   echo "compiling bigloo... "
   make -j && make install
