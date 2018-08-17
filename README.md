@@ -1,4 +1,4 @@
-  Bigloo, a practical Scheme compiler
+   Bigloo, a practical Scheme compiler
 ===================================
 
 [![Travis](https://api.travis-ci.org/manuel-serrano/bigloo.svg)](https://travis-ci.org/manuel-serrano/bigloo/builds)
