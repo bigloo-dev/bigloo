@@ -1,10 +1,10 @@
 #!/bin/sh
 #*=====================================================================*/
-#*    .../prgm/project/githooks/bigloo/autobench/bigloo/install.sh     */
+#*    /tmp/BIGLOO/bigloo/githooks/autobench/bigloo/install.sh          */
 #*    -------------------------------------------------------------    */
 #*    Author      :  Manuel Serrano                                    */
 #*    Creation    :  Mon Aug 13 16:09:31 2018                          */
-#*    Last change :  Thu Aug 16 13:10:59 2018 (serrano)                */
+#*    Last change :  Fri Aug 17 15:30:27 2018 (serrano)                */
 #*    Copyright   :  2018 Manuel Serrano                               */
 #*    -------------------------------------------------------------    */
 #*    Bigloo install file                                              */
@@ -28,7 +28,7 @@ if [ ! -f $GITHOOKS_DIR/autobench/bootstrap/bigloo ]; then
    tar xfz ../../download/bigloo-latest.tar.gz; \
    cd bigloo4.3b; \
    ./configure --prefix=$GITHOOKS_DIR/autobench/bootstrap/bigloo --disable-avahi --disable-alsa --disable-gstreamer --disable-pulseaudio --disable-mpg123 --disable-flac --disable-multimedia --disable-wav --jvm=no; \
-   echo "Compiling bootstrap Bigloo $(PWD)"; \
+   echo "Compiling bootstrap Bigloo $PWD"; \
    make -j; \
    make install)
 fi
