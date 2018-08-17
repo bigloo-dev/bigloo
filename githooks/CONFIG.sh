@@ -1,3 +1,3 @@
-HOSTS="arctic redrock.inria.fr"
+HOSTS="arctic petrois redrock.inria.fr"
 SYSTEMS="bigloo"
 BENCHMARKS="bague earley"
